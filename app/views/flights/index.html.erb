@@ -1,0 +1,18 @@
+<h2>Search</h2>
+<%= simple_form_for :search, url: root_path, method: 'GET' do |f| %>
+  <%= f.input :from_airport, collection: @airports, required: false, selected: @from %><br />
+  <%= f.input :to_airport, collection: @airports, required: false, selected: @to %><br />
+  <%= f.input :number_of_passengers, collection: 1..4, required: false, selected: @num %><br />
+  <%= f.input :date, collection: @dates, required: false, selected: @selected_date %><br />
+  <%= f.button :submit, 'Search' %>
+<% end %>
+
+<% if params[:search] %>
+  <h2>Booking flight for <%= @num == '1' ? '1 passenger' : "#{@num} passengers"%></h2>
+    <%= simple_form_for :flight, url: new_booking_path, method: 'GET' do |f| %>
+      <%= f.input :id, collection: @flights, as: :radio_buttons, label: 'Select flight', label_method: :label, required: true %>
+      <%= f.input :number_of_passengers, as: :hidden, input_html: { value: params[:search][:number_of_passengers] } %>
+      <%= f.button :submit, 'Select' %>
+    <% end %>
+  </table>
+<% end %>

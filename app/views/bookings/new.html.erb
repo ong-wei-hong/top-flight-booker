@@ -1,0 +1,18 @@
+<h2>Flight Booking</h2>
+
+<h3><%= Flight.find(params[:flight][:id]).label %></h3>
+
+
+<%= simple_form_for @booking do |f| %>
+  <% params[:flight][:number_of_passengers].to_i.times do |i| %>
+    <%= f.input :number_of_passengers, as: :hidden, input_html: { value: params[:flight][:number_of_passengers] }%>
+    <%= f.input :id, as: :hidden, input_html: { value: params[:flight][:id] }%>
+    <%= f.simple_fields_for :passengers, @booking.passengers.build do |form| %>
+      <em><%= "Passenger #{i + 1}" %></em>
+      <%= form.input :name %>
+      <%= form.input :email %>
+      <br />
+    <% end %>
+  <% end %>
+  <%= f.button :submit %>
+<% end %>
