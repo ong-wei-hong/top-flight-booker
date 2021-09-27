@@ -6,11 +6,21 @@ class BookingsController < ApplicationController
 
   def create
     @booking = Flight.find(create_params[:id]).bookings.create
-    create_params[:number_of_passengers].to_i.times do |i|
-      @booking.passengers.create(create_passenger_params[i.to_s])
+    passengers = Array.new(create_params[:number_of_passengers].to_i) { |i| @booking.passengers.build(create_params[:passengers_attributes][i.to_s]) }
+
+    respond_to do |format|
+      if passengers.all? { |passenger| passenger.valid? }
+        @booking.save
+        passengers.each do |passenger|
+          passenger.save
+          PassengerMailer.with(user: passenger, id: @booking.id).thank_you_email.deliver_later
+        end
+        format.html { redirect_to(@booking, notice: 'Your booking is successful') }
+      else
+        Booking.delete(@booking)
+        format.html { redirect_to(new_booking_path(flight: { id: create_params[:id], number_of_passengers: create_params[:number_of_passengers] }), alert: 'Error please try again')}
+      end
     end
-    flash.notice = 'Your flight has successfully been booked'
-    redirect_to booking_path(Booking.last.id)
   end
 
   def show
@@ -23,11 +33,7 @@ class BookingsController < ApplicationController
     params.require(:flight).permit(:id, :number_of_passengers)
   end
 
-  def create_passenger_params
-    params.require(:booking).require(:passengers_attributes).permit!
-  end
-
   def create_params
-    params.require(:booking).permit(:id, :number_of_passengers)
+    params.require(:booking).permit({ passengers_attributes: [:name, :email] }, :id, :number_of_passengers)
   end
 end

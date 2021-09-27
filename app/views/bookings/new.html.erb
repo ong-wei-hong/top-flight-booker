@@ -10,7 +10,7 @@
     <%= f.simple_fields_for :passengers, @booking.passengers.build do |form| %>
       <em><%= "Passenger #{i + 1}" %></em>
       <%= form.input :name %>
-      <%= form.input :email %>
+      <%= form.input :email, as: :email %>
       <br />
     <% end %>
   <% end %>
